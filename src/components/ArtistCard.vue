@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+// import { ref } from 'vue';
 
 defineProps<{
   painting: {
@@ -12,7 +12,7 @@ defineProps<{
   };
 }>();
 
-const isHovered = ref(false);
+// const isHovered = ref(false);
 </script>
 
 <template>

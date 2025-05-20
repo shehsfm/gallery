@@ -44,14 +44,23 @@ export const useArtistsStore = defineStore('artists', {
           `https://test-front.framework.team/paintings?_page=${this.currentPage}&_limit=${this.limit}&q=${this.searchQuery}`,
         );
         //результат запроса в paintings
-        this.paintings = res.data.map((painting: any) => ({
-          ...painting,
-          location:
-            this.locations.find((loc) => loc.id === painting.locationId)?.location || 'Unknown',
-          author:
-            this.authors.find((author) => author.id === painting.authorId)?.name ||
-            'Unknown Author',
-        }));
+        this.paintings = res.data.map(
+          (painting: {
+            id: number;
+            name: string;
+            imageUrl: string;
+            authorId: number;
+            locationId: number;
+          }) => ({
+            ...painting,
+            location:
+              this.locations.find((loc: Location) => loc.id === painting.locationId)?.location ||
+              'не найдена локация',
+            author:
+              this.authors.find((author: Autor) => author.id === painting.authorId)?.name ||
+              'не найден автор',
+          }),
+        );
         //тут считаем сколько страниц получилось
         this.totalPages = Math.ceil(res.headers['x-total-count'] / this.limit);
       } catch (error) {
