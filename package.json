@@ -13,6 +13,7 @@
     "format": "prettier --write src/",
     "deploy": "vite build && gh-pages -d dist"
   },
+  "homepage": "https://shehsfm.github.io/gallery",
   "dependencies": {
     "pinia": "^3.0.1",
     "vue": "^3.5.13"
