@@ -1,4 +1,4 @@
-# icant
+# Нуретдинова Камила Мухтаровна из группы 22ИС-2 УАвиаК-МЦК
 
 This template should help get you started developing with Vue 3 in Vite.
 
