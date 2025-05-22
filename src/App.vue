@@ -96,6 +96,9 @@ body {
     .pagination button {
       color: #fff;
     }
+    .search {
+      border: none;
+    }
   }
   .header {
     display: flex;
