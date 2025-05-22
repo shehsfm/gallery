@@ -93,6 +93,9 @@ body {
       border: none;
       @include transition;
     }
+    .pagination button {
+      color: #fff;
+    }
   }
   .header {
     display: flex;

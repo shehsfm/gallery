@@ -1,6 +1,4 @@
 <script setup lang="ts">
-// import { ref } from 'vue';
-
 defineProps<{
   painting: {
     id: number;
@@ -11,8 +9,6 @@ defineProps<{
     author: string;
   };
 }>();
-
-// const isHovered = ref(false);
 </script>
 
 <template>

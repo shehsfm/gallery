@@ -1,12 +1,8 @@
 //для загрузки художников и отображения карточек //для полей и пагинации
-
 <script setup lang="ts">
 import search from '../assets/img/loopa.svg';
-
-//позволяет выполнить код после загрузки страницы
-import { onMounted, watch } from 'vue';
+import { onMounted, watch, computed } from 'vue';
 import { useArtistsStore } from '@/stores/artistsStore';
-//показываем карточку
 import ArtistCard from '@/components/ArtistCard.vue';
 
 const artistsStore = useArtistsStore();
@@ -14,52 +10,100 @@ const artistsStore = useArtistsStore();
 onMounted(() => {
   artistsStore.fetchLocations();
   artistsStore.fetchAuthors();
-  //делаем запрос к серверу и получает данные о художниках
   artistsStore.fetchArtists();
 });
 
-// поиск
+// при поиске сбрасываем на первую страницу
 watch(
   () => artistsStore.searchQuery,
   () => {
-    // Сбрасываем currentPage на 1 при новом поиске
     artistsStore.currentPage = 1;
     artistsStore.fetchArtists();
   },
 );
+
+// карточки по шесть штук
+const currentPaintings = computed(() => {
+  return Array.isArray(artistsStore.paintings) ? artistsStore.paintings : [];
+});
+
+// пагинация (icant)
+const paginationPages = computed(() => {
+  const totalPages = Math.max(1, artistsStore.totalPages);
+  const currentPage = artistsStore.currentPage;
+  const pages = [];
+
+  pages.push(1);
+
+  if (currentPage > 3) {
+    pages.push('...');
+  }
+
+  for (let i = Math.max(2, currentPage - 1); i <= Math.min(totalPages - 1, currentPage + 1); i++) {
+    pages.push(i);
+  }
+
+  if (currentPage < totalPages - 2) {
+    pages.push('...');
+  }
+
+  if (totalPages > 1) {
+    pages.push(totalPages);
+  }
+
+  return pages;
+});
 </script>
 
 <template>
-  <div>
-    <!-- <div class="input-control">
-      <img :src="search" />
+  <!-- строк а поиска -->
+  <div class="input-control">
+    <div class="input-wrapper">
+      <img :src="search" class="search-icon" />
       <input class="search" v-model="artistsStore.searchQuery" placeholder="Painting title" />
-    </div> -->
-    <div class="input-control">
-      <div class="input-wrapper">
-        <img :src="search" class="search-icon" />
-        <input class="search" v-model="artistsStore.searchQuery" placeholder="Painting title" />
-      </div>
     </div>
+  </div>
 
-    <div class="gallery">
-      <ArtistCard
-        v-for="painting in artistsStore.paintings"
-        :key="painting.id"
-        :painting="painting"
-      />
+  <!-- карточки -->
+  <div class="gallery">
+    <div v-if="currentPaintings.length === 0" class="text-center text-gray-500">
+      картины не найдены!
     </div>
+    <ArtistCard v-for="painting in currentPaintings" :key="painting.id" :painting="painting" />
+  </div>
 
-    <div class="pagination">
-      <button
-        v-for="page in artistsStore.totalPages"
-        :key="page"
-        @click="artistsStore.setPage(page)"
-        :disabled="artistsStore.currentPage === page"
+  <!-- пагинация -->
+  <div v-if="artistsStore.totalPages > 1" class="pagination">
+    <button
+      @click="artistsStore.setPage(artistsStore.currentPage - 1)"
+      :disabled="artistsStore.currentPage === 1"
+    >
+      <
+    </button>
+
+    <button
+      v-for="page in paginationPages"
+      :key="page"
+      @click="typeof page === 'number' && artistsStore.setPage(page)"
+      :disabled="artistsStore.currentPage === page"
+      :class="[
+        'px-3 py-1 rounded',
+        typeof page === 'number'
+          ? artistsStore.currentPage === page
+            ? 'bg-blue-500 text-white font-bold'
+            : 'bg-gray-200 hover:bg-gray-300'
+          : 'bg-transparent cursor-default',
+      ]"
+    >
+      {{ page }}
+    </button>
+
+    <button
+      @click="artistsStore.setPage(artistsStore.currentPage + 1)"
+      :disabled="artistsStore.currentPage === artistsStore.totalPages"
+    >
       >
-        {{ page }}
-      </button>
-    </div>
+    </button>
   </div>
 </template>
 
@@ -68,7 +112,7 @@ watch(
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 1rem;
+  gap: 16px;
   padding: 1rem;
 }
 
@@ -78,15 +122,18 @@ watch(
   margin-top: 1rem;
 
   button {
-    margin: 0 0.5rem;
-    padding: 0.5rem 1rem;
+    margin: 0 0.25rem;
+    padding: 0.5rem 0.75rem;
     border-radius: 4px;
-    background-color: #f0f0f0;
-    border: 1px solid #ccc;
+    border: none;
     cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover:not(:disabled) {
+      background-color: #e0e0e0;
+    }
 
     &:disabled {
-      background-color: #ddd;
       cursor: not-allowed;
     }
   }
